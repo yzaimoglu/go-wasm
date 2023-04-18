@@ -70,9 +70,34 @@ export const decryptRSA = async (key, total) => {
         data,
     );
 
-    let dec = new TextDecoder();
-    let decryptedMessage = dec.decode(decrypted);
+    const decryptedMessage = getMessageDecoding(decrypted)
     return decryptedMessage;
+}
+
+export const encryptAESKeyJWK = async (key, aesKey) => {
+    let b64aesKey = keyToBase64(aesKey);
+    let encryptedAESKey = await encryptRSA(key, b64aesKey);
+    return encryptedAESKey
+}
+
+export const encryptAESKey = async (key, aesKey) => {
+    let exportedAESKey = await exportKey(aesKey);
+    let b64aesKey = keyToBase64(exportedAESKey);
+    let encryptedAESKey = await encryptRSA(key, b64aesKey);
+    return encryptedAESKey
+}
+
+export const decryptAESKey = async (key, encryptedAESKey) => {
+    let decryptedAESKey = await decryptRSA(key, encryptedAESKey);
+    let aesKeyJWK = base64ToKey(decryptedAESKey);
+    let aesKey = await importAESKey(aesKeyJWK);
+    return aesKey
+}
+
+export const decryptAESKeyJWK = async (key, encryptedAESKey) => {
+    let decryptedAESKey = await decryptRSA(key, encryptedAESKey);
+    let aesKeyJWK = base64ToKey(decryptedAESKey);
+    return aesKeyJWK
 }
 
 export const encryptAES = async (key, message) => {
@@ -111,8 +136,7 @@ export const decryptAES = async (key, total) => {
         data,
     );
 
-    let dec = new TextDecoder();
-    let decryptedMessage = dec.decode(decrypted);
+    const decryptedMessage = getMessageDecoding(decrypted)
     return decryptedMessage;
 }
 
@@ -148,6 +172,11 @@ export const base64ToJwk = (key) => {
 const getMessageEncoding = (message) => {
     let enc = new TextEncoder();
     return enc.encode(message);
+}
+
+const getMessageDecoding = (message) => {
+    let dec = new TextDecoder();
+    return dec.decode(message);
 }
 
 

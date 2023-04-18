@@ -16,6 +16,13 @@
             <button @click="encryptMessageRSA">Encrypt Message With RSA</button>
             <button @click="decryptMessageRSA">Decrypt Message With RSA</button>
         </div>
+        
+        <div>
+            <p>Encrypted AES Key: {{ encryptedAESKey }}</p>
+            <p>Decrypted AES Key: {{ decryptedAESKey }}</p>
+            <button @click="encryptAESKeyLocal">Encrypt AES Key With RSA</button>
+            <button @click="decryptAESKeyLocal">Decrypt AES Key With RSA</button>
+        </div>
     </div>
 </template>
 
@@ -31,13 +38,15 @@
         importRSAPublicKey, 
         importRSAPrivateKey, 
         importAESKey,
-        jwkToBase64,
-        base64ToJwk 
+        encryptAESKey,
+        decryptAESKey
     } from '/api/cryptography.js'
 
     const plainMessage = ref('')
     const encryptedMessage = ref('')
     const decryptedMessage = ref('')
+    const encryptedAESKey = ref('')
+    const decryptedAESKey = ref('')
 
     const keys = ref({
         rsa: {
@@ -83,4 +92,18 @@
         const decrypted = await decryptRSA(rsaKey, encryptedMessage.value)
         decryptedMessage.value = decrypted
     }
+
+    const encryptAESKeyLocal = async () => {
+        const rsaKey = await importRSAPublicKey(keys.value.rsa.publicKey)
+        const aesKey = await importAESKey(keys.value.aes.key)
+        const encrypted = await encryptAESKey(rsaKey, aesKey)
+        encryptedAESKey.value = encrypted
+    }
+
+    const decryptAESKeyLocal = async () => {
+        const rsaKey = await importRSAPrivateKey(keys.value.rsa.privateKey)
+        const decrypted = await decryptAESKey(rsaKey, encryptedAESKey.value)
+        decryptedAESKey.value = decrypted
+    }
+
 </script>
